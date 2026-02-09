@@ -1,28 +1,41 @@
 package com.pvpsit.QREventManager.entity;
 
+
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.util.List;
 
-
-@Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Setter
 @Getter
+@Entity
+@Table(name = "events")
 public class Event {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer eventId;
-    private String eventName;
-    private String venue;
-    private Integer entryFee;
-    private String eventManager;
-    private LocalTime time;
-    private LocalDate date;
+    private Long eventId;
 
+    private String title;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    private LocalDate eventDate;
+    private LocalTime eventTime;
+    private String venue;
+    private Double price;
+    private Integer maxSeats;
+
+    private LocalDateTime createdAt;
+
+    // One Event → Many Registrations
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    private List<Registration> registrations;
+
+    // getters and setters
 }
