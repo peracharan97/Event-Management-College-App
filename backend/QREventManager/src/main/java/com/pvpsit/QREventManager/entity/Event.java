@@ -19,19 +19,15 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long eventId;
-
     private String title;
-
     @Column(columnDefinition = "TEXT")
     private String description;
-
     private LocalDate eventDate;
     private LocalTime eventTime;
     private String venue;
     private Double price;
     private Integer maxSeats;
-
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt=LocalDateTime.now();
 
     // One Event → Many Registrations
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)

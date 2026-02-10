@@ -10,7 +10,7 @@ public class EventServiceImplementation implements EventService {
     private EventRepository eventRepository;
 
     @Override
-    public String addEvent(Event event) {
+    public String createEvent(Event event) {
         try{
             eventRepository.save(event);
             return "Event Created";
