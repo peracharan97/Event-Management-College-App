@@ -3,6 +3,8 @@ package com.pvpsit.QREventManager.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 public class StudentStatusDTO {
@@ -14,4 +16,5 @@ public class StudentStatusDTO {
     private String semester;
     private String paymentStatus;
     private String attendanceStatus;
+    private List<String> selectedSubEvents;
 }

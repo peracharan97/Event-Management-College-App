@@ -1,8 +1,10 @@
 package com.pvpsit.QREventManager.dto;
 
 import lombok.Data;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Data
 public class EventDTO {
@@ -16,4 +18,5 @@ public class EventDTO {
     private Integer maxSeats;
     private Integer availableSeats;
     private Long totalRegistrations;
+    private List<String> subEvents;
 }

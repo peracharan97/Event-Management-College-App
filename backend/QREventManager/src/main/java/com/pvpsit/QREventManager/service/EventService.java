@@ -9,7 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,6 +25,7 @@ public class EventService {
 
     public Event createEvent(Event event, User admin) {
         event.setCreatedBy(admin);
+        event.setSubEvents(sanitizeSubEvents(event.getSubEvents()));
         return eventRepository.save(event);
     }
 
@@ -35,6 +40,7 @@ public class EventService {
         event.setVenue(eventDetails.getVenue());
         event.setPrice(eventDetails.getPrice());
         event.setMaxSeats(eventDetails.getMaxSeats());
+        event.setSubEvents(sanitizeSubEvents(eventDetails.getSubEvents()));
 
         return eventRepository.save(event);
     }
@@ -71,11 +77,34 @@ public class EventService {
         dto.setVenue(event.getVenue());
         dto.setPrice(event.getPrice());
         dto.setMaxSeats(event.getMaxSeats());
+        dto.setSubEvents(event.getSubEvents() == null ? Collections.emptyList() : event.getSubEvents());
 
         Long registrations = registrationRepository.countByEvent(event);
         dto.setTotalRegistrations(registrations);
         dto.setAvailableSeats(event.getMaxSeats() - registrations.intValue());
 
         return dto;
+    }
+
+    private List<String> sanitizeSubEvents(List<String> subEvents) {
+        if (subEvents == null) {
+            return Collections.emptyList();
+        }
+
+        Map<String, String> normalizedMap = new LinkedHashMap<>();
+        for (String rawValue : subEvents) {
+            if (rawValue == null || rawValue.trim().isEmpty()) {
+                continue;
+            }
+
+            String cleaned = rawValue.trim();
+            if ("NA".equalsIgnoreCase(cleaned)) {
+                continue;
+            }
+
+            normalizedMap.putIfAbsent(cleaned.toLowerCase(Locale.ROOT), cleaned);
+        }
+
+        return List.copyOf(normalizedMap.values());
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -140,7 +141,8 @@ public class AnalyticsService {
                         normalizeBranch(registration),
                         normalizeSemester(registration),
                         registration.getPaymentStatus() != null ? registration.getPaymentStatus().name() : "PENDING",
-                        getAttendanceStatus(registration)
+                        getAttendanceStatus(registration),
+                        registration.getSelectedSubEvents() == null ? Collections.emptyList() : registration.getSelectedSubEvents()
                 ))
                 .sorted(Comparator.comparing(StudentStatusDTO::getStudentName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
                 .toList();

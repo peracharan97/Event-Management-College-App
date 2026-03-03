@@ -122,6 +122,7 @@ const MyRegistrations = () => {
                             <p><strong>Date:</strong> {format(new Date(reg.event.eventDate), 'dd MMM yyyy')}</p>
                             <p><strong>Time:</strong> {reg.event.eventTime}</p>
                             <p><strong>Venue:</strong> {reg.event.venue}</p>
+                            <p><strong>Sub-Events:</strong> {reg.selectedSubEvents?.join(', ') || 'NA'}</p>
                             <p><strong>Registration ID:</strong> #{reg.regId}</p>
                         </div>
 
