@@ -1,12 +1,10 @@
 package com.pvpsit.QREventManager.entity;
 
-
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
-
 
 @Setter
 @Getter
@@ -21,12 +19,15 @@ public class QrCode {
     @Column(columnDefinition = "TEXT")
     private String qrData;
 
+    @Column(columnDefinition = "LONGTEXT")
+    private String qrImageBase64;
+
     private LocalDateTime generatedAt;
+    private Boolean used = false;
 
     // One QR → One Registration
     @OneToOne
+    @JsonIgnore
     @JoinColumn(name = "reg_id", nullable = false)
     private Registration registration;
-
-    // getters and setters
 }

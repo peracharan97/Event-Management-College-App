@@ -1,12 +1,10 @@
 package com.pvpsit.QREventManager.entity;
 
-
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
-
 
 @Setter
 @Getter
@@ -25,16 +23,17 @@ public class Attendance {
 
     // One Attendance → One Registration
     @OneToOne
+    @JsonIgnore
     @JoinColumn(name = "reg_id", nullable = false)
     private Registration registration;
 
     // Many Attendance → One Event
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
+
     public enum AttendanceStatus {
         PRESENT
     }
-
-    // getters and setters
 }
