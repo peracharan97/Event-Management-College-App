@@ -26,7 +26,8 @@ public class RegistrationController {
     ) {
         Registration registration = registrationService.registerForEvent(
                 request.getEventId(),
-                user
+                user,
+                request.getSelectedSubEvents()
         );
         return ResponseEntity.ok(registration);
     }

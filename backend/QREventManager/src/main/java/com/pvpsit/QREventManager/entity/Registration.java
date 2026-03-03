@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @Entity
@@ -23,6 +26,11 @@ public class Registration {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "registration_sub_events", joinColumns = @JoinColumn(name = "reg_id"))
+    @Column(name = "sub_event")
+    private List<String> selectedSubEvents = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;

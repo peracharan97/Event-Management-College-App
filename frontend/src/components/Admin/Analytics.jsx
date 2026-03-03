@@ -69,7 +69,7 @@ const Analytics = () => {
     };
 
     const handleDownloadStudentCsv = () => {
-        const headers = ['Reg ID', 'Name', 'Email', 'Roll No', 'Department', 'Semester', 'Payment Status', 'Attendance Status'];
+        const headers = ['Reg ID', 'Name', 'Email', 'Roll No', 'Department', 'Semester', 'Payment Status', 'Attendance Status', 'Sub Events'];
         const rows = students.map((s) => [
             s.regId,
             s.studentName,
@@ -78,7 +78,8 @@ const Analytics = () => {
             s.department,
             s.semester,
             s.paymentStatus,
-            s.attendanceStatus
+            s.attendanceStatus,
+            (s.selectedSubEvents || []).join(', ')
         ]);
         const csv = [headers, ...rows]
             .map((row) => row.map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(','))
@@ -338,17 +339,18 @@ const Analytics = () => {
                             <th>Semester</th>
                             <th>Payment</th>
                             <th>Attendance</th>
+                            <th>Sub-Events</th>
                         </tr>
                         </thead>
                         <tbody>
                         {studentsLoading && (
                             <tr>
-                                <td colSpan="7">Loading filtered students...</td>
+                                <td colSpan="8">Loading filtered students...</td>
                             </tr>
                         )}
                         {!studentsLoading && students.length === 0 && (
                             <tr>
-                                <td colSpan="7">No students found for selected filters.</td>
+                                <td colSpan="8">No students found for selected filters.</td>
                             </tr>
                         )}
                         {!studentsLoading && students.map((student) => (
@@ -360,6 +362,7 @@ const Analytics = () => {
                                 <td>{student.semester}</td>
                                 <td>{student.paymentStatus}</td>
                                 <td>{student.attendanceStatus}</td>
+                                <td>{(student.selectedSubEvents || []).join(', ') || 'NA'}</td>
                             </tr>
                         ))}
                         </tbody>
