@@ -1,13 +1,11 @@
 package com.pvpsit.QREventManager.entity;
 
-
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @Entity
@@ -18,14 +16,13 @@ public class Registration {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long regId;
 
-    // Many Registrations → One Event
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
-    private String studentName;
-    private String studentEmail;
-    private String rollNo;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
@@ -33,19 +30,20 @@ public class Registration {
     @Enumerated(EnumType.STRING)
     private RegistrationStatus regStatus;
 
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    // One Registration → One Payment
     @OneToOne(mappedBy = "registration", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Payment payment;
 
-    // One Registration → One QR Code
     @OneToOne(mappedBy = "registration", cascade = CascadeType.ALL)
+    @JsonIgnore
     private QrCode qrCode;
 
-    // One Registration → One Attendance
     @OneToOne(mappedBy = "registration", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Attendance attendance;
+
     public enum PaymentStatus {
         PENDING, PAID
     }
@@ -53,6 +51,4 @@ public class Registration {
     public enum RegistrationStatus {
         CONFIRMED, CANCELLED
     }
-
-    // getters and setters
 }
