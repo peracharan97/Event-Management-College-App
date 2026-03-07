@@ -2,6 +2,7 @@ import api from './api';
 
 export const eventService = {
     getAllEvents: () => api.get('/events/list'),
+    getAllEventsForAdmin: () => api.get('/events/admin/list'),
     getUpcomingEvents: () => api.get('/events/upcoming'),
     getEventById: (id) => api.get(`/events/${id}`),
     createEvent: (eventData) => api.post('/events', eventData),

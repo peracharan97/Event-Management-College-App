@@ -19,4 +19,5 @@ public class EventDTO {
     private Integer availableSeats;
     private Long totalRegistrations;
     private List<String> subEvents;
+    private String status;
 }

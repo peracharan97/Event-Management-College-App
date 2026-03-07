@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { eventService } from '../../services/eventService';
-import { toast } from 'react-toastify';
 import { format } from 'date-fns';
+import { toast } from 'react-toastify';
+import { eventService } from '../../services/eventService';
 
 const EventManagement = () => {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [view, setView] = useState('ACTIVE');
 
     useEffect(() => {
         fetchEvents();
@@ -14,8 +15,8 @@ const EventManagement = () => {
 
     const fetchEvents = async () => {
         try {
-            const response = await eventService.getAllEvents();
-            setEvents(response.data);
+            const response = await eventService.getAllEventsForAdmin();
+            setEvents(response.data || []);
         } catch (error) {
             toast.error('Failed to load events');
         } finally {
@@ -24,21 +25,22 @@ const EventManagement = () => {
     };
 
     const handleDelete = async (eventId) => {
-        if (window.confirm('Are you sure you want to delete this event?')) {
-            try {
-                await eventService.deleteEvent(eventId);
-                toast.success('Event deleted successfully');
-                fetchEvents();
-            } catch (error) {
-                toast.error('Failed to delete event');
-            }
+        if (!window.confirm('Are you sure you want to archive this event?')) {
+            return;
+        }
+
+        try {
+            await eventService.deleteEvent(eventId);
+            toast.success('Event archived successfully');
+            fetchEvents();
+        } catch (error) {
+            toast.error('Failed to archive event');
         }
     };
 
     const handleViewRegistrations = async (eventId) => {
         try {
             const response = await eventService.getEventRegistrations(eventId);
-            // You can create a modal or new page to show registrations
             console.log('Registrations:', response.data);
             toast.info(`${response.data.length} registrations found`);
         } catch (error) {
@@ -50,83 +52,117 @@ const EventManagement = () => {
         return <div className="loading-spinner">Loading events...</div>;
     }
 
+    const normalizedEvents = events.map((event) => ({
+        ...event,
+        status: event.status || 'ACTIVE'
+    }));
+
+    const filteredEvents = normalizedEvents.filter((event) =>
+        view === 'ACTIVE'
+            ? event.status === 'ACTIVE'
+            : event.status === 'ARCHIVED' || event.status === 'DELETED'
+    );
+
     return (
         <div className="event-management-container">
             <div className="page-header">
                 <h1>Event Management</h1>
                 <Link to="/admin/create-event" className="btn btn-primary">
-                    ➕ Create New Event
+                    + Create New Event
                 </Link>
             </div>
 
+            <div className="event-view-toggle" style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
+                <button
+                    onClick={() => setView('ACTIVE')}
+                    className={`btn btn-sm ${view === 'ACTIVE' ? 'btn-primary' : 'btn-secondary'}`}
+                >
+                    Active Events
+                </button>
+                <button
+                    onClick={() => setView('INACTIVE')}
+                    className={`btn btn-sm ${view === 'INACTIVE' ? 'btn-primary' : 'btn-secondary'}`}
+                >
+                    Archived/Deleted
+                </button>
+            </div>
+
             <div className="events-management-grid">
-                {events.map(event => (
+                {filteredEvents.map((event) => (
                     <div key={event.eventId} className="event-management-card">
                         <div className="event-card-header">
                             <h3>{event.title}</h3>
-                            <span className={`event-status ${new Date(event.eventDate) >= new Date() ? 'upcoming' : 'past'}`}>
-                                {new Date(event.eventDate) >= new Date() ? 'Upcoming' : 'Past'}
+                            <span className={`event-status ${event.status === 'ACTIVE' && new Date(event.eventDate) >= new Date() ? 'upcoming' : 'past'}`}>
+                                {event.status === 'ACTIVE'
+                                    ? (new Date(event.eventDate) >= new Date() ? 'Upcoming' : 'Past')
+                                    : event.status}
                             </span>
                         </div>
 
                         <div className="event-card-body">
                             <p className="event-description">{event.description}</p>
-                            
+
                             <div className="event-info">
                                 <div className="info-item">
-                                    <span className="info-label">📅 Date:</span>
+                                    <span className="info-label">Date:</span>
                                     <span>{format(new Date(event.eventDate), 'dd MMM yyyy')}</span>
                                 </div>
                                 <div className="info-item">
-                                    <span className="info-label">🕐 Time:</span>
+                                    <span className="info-label">Time:</span>
                                     <span>{event.eventTime}</span>
                                 </div>
                                 <div className="info-item">
-                                    <span className="info-label">📍 Venue:</span>
+                                    <span className="info-label">Venue:</span>
                                     <span>{event.venue}</span>
                                 </div>
                                 <div className="info-item">
-                                    <span className="info-label">💰 Price:</span>
-                                    <span>₹{event.price}</span>
+                                    <span className="info-label">Price:</span>
+                                    <span>Rs {event.price}</span>
                                 </div>
                                 <div className="info-item">
-                                    <span className="info-label">👥 Registrations:</span>
+                                    <span className="info-label">Registrations:</span>
                                     <span>{event.totalRegistrations}/{event.maxSeats}</span>
                                 </div>
                             </div>
                         </div>
 
                         <div className="event-card-actions">
-                            <button 
+                            <button
                                 onClick={() => handleViewRegistrations(event.eventId)}
                                 className="btn btn-sm btn-secondary"
                             >
                                 View Registrations
                             </button>
-                            <Link 
+                            <Link
                                 to={`/admin/analytics/${event.eventId}`}
                                 className="btn btn-sm btn-primary"
                             >
                                 Analytics
                             </Link>
-                            <button 
-                                onClick={() => handleDelete(event.eventId)}
-                                className="btn btn-sm btn-danger"
-                            >
-                                Delete
-                            </button>
+                            {event.status === 'ACTIVE' && (
+                                <button
+                                    onClick={() => handleDelete(event.eventId)}
+                                    className="btn btn-sm btn-danger"
+                                >
+                                    Archive
+                                </button>
+                            )}
                         </div>
                     </div>
                 ))}
             </div>
 
-            {events.length === 0 && (
+            {filteredEvents.length === 0 && (
                 <div className="empty-state">
-                    <h3>No events created yet</h3>
-                    <p>Create your first event to get started!</p>
-                    <Link to="/admin/create-event" className="btn btn-primary">
-                        Create Event
-                    </Link>
+                    <h3>{view === 'ACTIVE' ? 'No active events' : 'No archived/deleted events'}</h3>
+                    {view === 'ACTIVE' && (
+                        <>
+                            <p>Create your first event to get started!</p>
+                            <Link to="/admin/create-event" className="btn btn-primary">
+                                Create Event
+                            </Link>
+                        </>
+                    )}
                 </div>
             )}
         </div>

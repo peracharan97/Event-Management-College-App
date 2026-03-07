@@ -2,6 +2,7 @@ package com.pvpsit.QREventManager.service;
 
 import com.pvpsit.QREventManager.dto.EventDTO;
 import com.pvpsit.QREventManager.entity.Event;
+import com.pvpsit.QREventManager.entity.Event.EventStatus;
 import com.pvpsit.QREventManager.entity.User;
 import com.pvpsit.QREventManager.repository.EventRepository;
 import com.pvpsit.QREventManager.repository.RegistrationRepository;
@@ -26,6 +27,7 @@ public class EventService {
     public Event createEvent(Event event, User admin) {
         event.setCreatedBy(admin);
         event.setSubEvents(sanitizeSubEvents(event.getSubEvents()));
+        event.setStatus(EventStatus.ACTIVE);
         return eventRepository.save(event);
     }
 
@@ -46,17 +48,26 @@ public class EventService {
     }
 
     public void deleteEvent(Long eventId) {
-        eventRepository.deleteById(eventId);
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+        event.setStatus(EventStatus.DELETED);
+        eventRepository.save(event);
     }
 
     public List<EventDTO> getAllEvents() {
+        return eventRepository.findActiveEvents().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<EventDTO> getAllEventsForAdmin() {
         return eventRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     public List<EventDTO> getUpcomingEvents() {
-        return eventRepository.findByEventDateAfter(LocalDate.now()).stream()
+        return eventRepository.findActiveEventsByEventDateAfter(LocalDate.now()).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -78,10 +89,11 @@ public class EventService {
         dto.setPrice(event.getPrice());
         dto.setMaxSeats(event.getMaxSeats());
         dto.setSubEvents(event.getSubEvents() == null ? Collections.emptyList() : event.getSubEvents());
+        dto.setStatus(event.getStatus() == null ? EventStatus.ACTIVE.name() : event.getStatus().name());
 
         Long registrations = registrationRepository.countByEvent(event);
         dto.setTotalRegistrations(registrations);
-        dto.setAvailableSeats(event.getMaxSeats() - registrations.intValue());
+        dto.setAvailableSeats(event.getMaxSeats() == null ? null : event.getMaxSeats() - registrations.intValue());
 
         return dto;
     }
