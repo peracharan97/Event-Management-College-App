@@ -21,6 +21,12 @@ import java.util.List;
 @Table(name = "events")
 public class Event {
 
+    public enum EventStatus {
+        ACTIVE,
+        ARCHIVED,
+        DELETED
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long eventId;
@@ -35,6 +41,10 @@ public class Event {
     private String venue;
     private Double price;
     private Integer maxSeats;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EventStatus status = EventStatus.ACTIVE;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "event_sub_events", joinColumns = @JoinColumn(name = "event_id"))
@@ -51,4 +61,11 @@ public class Event {
     @JsonIgnore
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
     private List<Registration> registrations;
+
+    @PrePersist
+    public void ensureStatus() {
+        if (status == null) {
+            status = EventStatus.ACTIVE;
+        }
+    }
 }

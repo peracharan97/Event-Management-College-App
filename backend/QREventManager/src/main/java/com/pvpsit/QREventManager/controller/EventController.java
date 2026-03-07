@@ -24,6 +24,12 @@ public class EventController {
         return ResponseEntity.ok(eventService.getAllEvents());
     }
 
+    @GetMapping("/admin/list")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<EventDTO>> getAllEventsForAdmin() {
+        return ResponseEntity.ok(eventService.getAllEventsForAdmin());
+    }
+
     @GetMapping("/upcoming")
     public ResponseEntity<List<EventDTO>> getUpcomingEvents() {
         return ResponseEntity.ok(eventService.getUpcomingEvents());
