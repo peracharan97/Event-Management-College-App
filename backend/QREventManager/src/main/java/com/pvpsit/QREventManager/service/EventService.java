@@ -27,6 +27,7 @@ public class EventService {
     public Event createEvent(Event event, User admin) {
         event.setCreatedBy(admin);
         event.setSubEvents(sanitizeSubEvents(event.getSubEvents()));
+        normalizePricing(event);
         event.setStatus(EventStatus.ACTIVE);
         return eventRepository.save(event);
     }
@@ -41,8 +42,11 @@ public class EventService {
         event.setEventTime(eventDetails.getEventTime());
         event.setVenue(eventDetails.getVenue());
         event.setPrice(eventDetails.getPrice());
+        event.setPvpsitPrice(eventDetails.getPvpsitPrice());
+        event.setOtherCollegePrice(eventDetails.getOtherCollegePrice());
         event.setMaxSeats(eventDetails.getMaxSeats());
         event.setSubEvents(sanitizeSubEvents(eventDetails.getSubEvents()));
+        normalizePricing(event);
 
         return eventRepository.save(event);
     }
@@ -86,7 +90,11 @@ public class EventService {
         dto.setEventDate(event.getEventDate());
         dto.setEventTime(event.getEventTime());
         dto.setVenue(event.getVenue());
-        dto.setPrice(event.getPrice());
+        Double pvpsitPrice = firstNonNull(event.getPvpsitPrice(), event.getPrice(), 0.0);
+        Double otherCollegePrice = firstNonNull(event.getOtherCollegePrice(), event.getPrice(), pvpsitPrice);
+        dto.setPrice(pvpsitPrice);
+        dto.setPvpsitPrice(pvpsitPrice);
+        dto.setOtherCollegePrice(otherCollegePrice);
         dto.setMaxSeats(event.getMaxSeats());
         dto.setSubEvents(event.getSubEvents() == null ? Collections.emptyList() : event.getSubEvents());
         dto.setStatus(event.getStatus() == null ? EventStatus.ACTIVE.name() : event.getStatus().name());
@@ -118,5 +126,24 @@ public class EventService {
         }
 
         return List.copyOf(normalizedMap.values());
+    }
+
+    private void normalizePricing(Event event) {
+        Double pvpsitPrice = firstNonNull(event.getPvpsitPrice(), event.getPrice(), 0.0);
+        Double otherCollegePrice = firstNonNull(event.getOtherCollegePrice(), event.getPrice(), pvpsitPrice);
+
+        event.setPvpsitPrice(pvpsitPrice);
+        event.setOtherCollegePrice(otherCollegePrice);
+        event.setPrice(pvpsitPrice);
+    }
+
+    @SafeVarargs
+    private final <T> T firstNonNull(T... values) {
+        for (T value : values) {
+            if (value != null) {
+                return value;
+            }
+        }
+        return null;
     }
 }

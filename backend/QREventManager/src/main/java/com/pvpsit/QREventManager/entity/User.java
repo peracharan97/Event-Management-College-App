@@ -39,6 +39,9 @@ public class User implements UserDetails {
     private String department;
     private Integer semester;
     private String phoneNumber;
+    
+    @Enumerated(EnumType.STRING)
+    private CollegeType collegeType = CollegeType.OTHER;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -48,6 +51,10 @@ public class User implements UserDetails {
 
     public enum Role {
         ADMIN, STUDENT
+    }
+
+    public enum CollegeType {
+        PVPSIT, OTHER
     }
 
     @Override

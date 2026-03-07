@@ -9,6 +9,7 @@ const PaymentGateway = () => {
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
     const navigate = useNavigate();
+    const payableAmount = registration?.registrationFee ?? registration?.event?.price ?? 0;
 
     const fetchRegistrationDetails = useCallback(async () => {
         try {
@@ -56,7 +57,7 @@ const PaymentGateway = () => {
 
             const response = await eventService.initiatePayment(
                 registration.regId,
-                registration.event.price
+                payableAmount
             );
             const order = response.data;
 
@@ -133,7 +134,7 @@ const PaymentGateway = () => {
                     </div>
                     <div className="summary-row">
                         <span>Amount:</span>
-                        <span>Rs. {registration.event.price?.toFixed(2)}</span>
+                        <span>Rs. {payableAmount.toFixed(2)}</span>
                     </div>
                 </div>
 
@@ -143,7 +144,7 @@ const PaymentGateway = () => {
                         disabled={processing}
                         className="btn btn-primary btn-large btn-block"
                     >
-                        {processing ? 'Processing...' : `Pay Rs. ${registration.event.price?.toFixed(2)}`}
+                        {processing ? 'Processing...' : `Pay Rs. ${payableAmount.toFixed(2)}`}
                     </button>
                     <button
                         onClick={() => navigate('/my-registrations')}

@@ -7,6 +7,17 @@ import { format } from 'date-fns';
 
 const NOT_APPLICABLE = 'NA';
 
+const resolveEventPrice = (event, user) => {
+    if (!event) {
+        return 0;
+    }
+
+    const pvpsitPrice = event.pvpsitPrice ?? event.price ?? 0;
+    const otherCollegePrice = event.otherCollegePrice ?? event.price ?? pvpsitPrice;
+
+    return user?.collegeType === 'PVPSIT' ? pvpsitPrice : otherCollegePrice;
+};
+
 const EventsList = () => {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -94,7 +105,13 @@ const EventsList = () => {
                     return (
                         <div key={event.eventId} className="event-card">
                             <div className="event-badge">
-                                {event.price === 0 ? 'FREE' : `Rs ${event.price}`}
+                                {user ? (
+                                    resolveEventPrice(event, user) === 0
+                                        ? 'FREE'
+                                        : `Rs ${resolveEventPrice(event, user)}`
+                                ) : (
+                                    `PVPSIT: Rs ${event.pvpsitPrice ?? event.price ?? 0} | Other: Rs ${event.otherCollegePrice ?? event.price ?? 0}`
+                                )}
                             </div>
 
                             <h3>{event.title}</h3>

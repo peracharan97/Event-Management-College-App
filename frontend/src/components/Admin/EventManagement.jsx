@@ -117,7 +117,9 @@ const EventManagement = () => {
                                 </div>
                                 <div className="info-item">
                                     <span className="info-label">Price:</span>
-                                    <span>Rs {event.price}</span>
+                                    <span>
+                                        PVPSIT: Rs {event.pvpsitPrice ?? event.price ?? 0} | Other: Rs {event.otherCollegePrice ?? event.price ?? 0}
+                                    </span>
                                 </div>
                                 <div className="info-item">
                                     <span className="info-label">Registrations:</span>

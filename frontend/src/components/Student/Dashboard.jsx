@@ -4,6 +4,12 @@ import { eventService } from '../../services/eventService';
 import { useAuth } from '../../context/AuthContext';
 import { format } from 'date-fns';
 
+const resolveEventPrice = (event, user) => {
+    const pvpsitPrice = event?.pvpsitPrice ?? event?.price ?? 0;
+    const otherCollegePrice = event?.otherCollegePrice ?? event?.price ?? pvpsitPrice;
+    return user?.collegeType === 'PVPSIT' ? pvpsitPrice : otherCollegePrice;
+};
+
 const StudentDashboard = () => {
     const [upcomingEvents, setUpcomingEvents] = useState([]);
     const [myRegistrations, setMyRegistrations] = useState([]);
@@ -103,7 +109,7 @@ const StudentDashboard = () => {
                                 <div className="event-preview-header">
                                     <h3>{event.title}</h3>
                                     <span className="event-price">
-                                        {event.price === 0 ? 'FREE' : `₹${event.price}`}
+                                        {resolveEventPrice(event, user) === 0 ? 'FREE' : `₹${resolveEventPrice(event, user)}`}
                                     </span>
                                 </div>
                                 <p className="event-preview-date">

@@ -4,7 +4,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +19,7 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
@@ -31,8 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        // skip public endpoints
-        if (path.startsWith("/api/auth") || path.equals("/error")) {
+        if (shouldSkipAuthentication(request, path)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -73,11 +75,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
 
+        } catch (ExpiredJwtException e) {
+            SecurityContextHolder.clearContext();
+            log.debug("Expired JWT for path {}", path);
         } catch (Exception e) {
             SecurityContextHolder.clearContext();
-            e.printStackTrace(); // debug
+            log.debug("JWT authentication failed for path {}: {}", path, e.getMessage());
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private boolean shouldSkipAuthentication(HttpServletRequest request, String path) {
+        String method = request.getMethod();
+
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
+
+        if ("/error".equals(path)) {
+            return true;
+        }
+
+        if ("/api/auth/login".equals(path) || "/api/auth/register".equals(path)) {
+            return true;
+        }
+
+        if ("GET".equalsIgnoreCase(method)) {
+            return "/api/events/list".equals(path)
+                    || "/api/events/upcoming".equals(path)
+                    || path.matches("^/api/events/[^/]+$");
+        }
+
+        return false;
     }
 }

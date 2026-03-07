@@ -19,6 +19,15 @@ export const authService = {
         return response.data;
     },
 
+    async updateProfile(profileData) {
+        const response = await api.put('/auth/profile', profileData);
+        if (response.data.token) {
+            localStorage.setItem('token', response.data.token);
+        }
+        localStorage.setItem('user', JSON.stringify(response.data));
+        return response.data;
+    },
+
     logout() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');

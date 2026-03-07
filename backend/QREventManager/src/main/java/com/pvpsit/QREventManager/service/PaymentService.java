@@ -56,11 +56,19 @@ public class PaymentService {
             throw new RuntimeException("Payment already completed for this registration");
         }
 
-        if (registration.getEvent() == null || registration.getEvent().getPrice() == null) {
-            throw new RuntimeException("Event price is not configured");
+        Double payableAmount = registration.getRegistrationFee();
+        if (payableAmount == null && registration.getEvent() != null) {
+            payableAmount = firstNonNull(
+                    registration.getEvent().getPvpsitPrice(),
+                    registration.getEvent().getOtherCollegePrice(),
+                    registration.getEvent().getPrice()
+            );
+        }
+        if (payableAmount == null) {
+            throw new RuntimeException("Registration fee is not configured");
         }
 
-        Integer amountInPaise = BigDecimal.valueOf(registration.getEvent().getPrice())
+        Integer amountInPaise = BigDecimal.valueOf(payableAmount)
                 .multiply(BigDecimal.valueOf(100))
                 .setScale(0, RoundingMode.HALF_UP)
                 .intValueExact();
@@ -98,7 +106,7 @@ public class PaymentService {
         });
 
         payment.setOrderId(razorpayOrderId);
-        payment.setAmount(registration.getEvent().getPrice());
+        payment.setAmount(payableAmount);
         payment.setPaymentMethod("RAZORPAY");
         payment.setStatus(Payment.PaymentResult.PENDING);
         payment.setVerified(false);
@@ -180,5 +188,15 @@ public class PaymentService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate payment signature", e);
         }
+    }
+
+    @SafeVarargs
+    private final <T> T firstNonNull(T... values) {
+        for (T value : values) {
+            if (value != null) {
+                return value;
+            }
+        }
+        return null;
     }
 }

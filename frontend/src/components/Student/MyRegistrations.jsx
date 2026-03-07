@@ -47,7 +47,7 @@ const MyRegistrations = () => {
 
             const response = await eventService.initiatePayment(
                 registration.regId,
-                registration.event.price
+                registration.registrationFee ?? registration.event.price
             );
             const order = response.data;
 
@@ -132,7 +132,7 @@ const MyRegistrations = () => {
                                     onClick={() => handlePayment(reg)}
                                     className="btn btn-primary"
                                 >
-                                    Pay Rs. {reg.event.price}
+                                    Pay Rs. {reg.registrationFee ?? reg.event.price}
                                 </button>
                             )}
 

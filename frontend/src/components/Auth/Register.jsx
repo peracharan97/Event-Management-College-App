@@ -13,6 +13,7 @@ const Register = () => {
         department: '',
         semester: '',
         phoneNumber: '',
+        collegeType: 'PVPSIT',
         role: 'STUDENT'
     });
     const [loading, setLoading] = useState(false);
@@ -99,6 +100,7 @@ const Register = () => {
                                 value={formData.rollNo}
                                 onChange={(e) => setFormData({...formData, rollNo: e.target.value})}
                                 placeholder="Enter roll number"
+                                required={formData.collegeType === 'PVPSIT'}
                             />
                         </div>
                         
@@ -134,6 +136,27 @@ const Register = () => {
                                 onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
                                 placeholder="Enter phone number"
                             />
+                        </div>
+                    </div>
+
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label>College *</label>
+                            <select
+                                value={formData.collegeType}
+                                onChange={(e) => setFormData({ ...formData, collegeType: e.target.value })}
+                                required
+                            >
+                                <option value="PVPSIT">PVPSIT</option>
+                                <option value="OTHER">Other College</option>
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label>Important Notice</label>
+                            <p className="field-help">
+                                If you select PVPSIT, your roll number will be verified at the venue.
+                                Please provide genuine details.
+                            </p>
                         </div>
                     </div>
                     
