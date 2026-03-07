@@ -6,15 +6,15 @@
 }
 
 :root {
-    --primary: #667eea;
-    --primary-dark: #5568d3;
-    --secondary: #764ba2;
+    --primary: #1f4e79;
+    --primary-dark: #173b5c;
+    --secondary: #2f6b9a;
     --success: #10b981;
     --danger: #ef4444;
     --warning: #f59e0b;
     --dark: #1f2937;
-    --light: #f7f9fc;
-    --gray: #6b7280;
+    --light: #f3f6f9;
+    --gray: #5b6470;
     --white: #ffffff;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -22,7 +22,7 @@
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #eaf0f5 0%, #dde8f1 100%);
     background-attachment: fixed;
     color: var(--dark);
     line-height: 1.6;
@@ -36,7 +36,7 @@ body {
 
 .main-content {
     flex: 1;
-    padding: 80px 20px 40px;
+    padding: 210px 20px 40px;
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
@@ -54,38 +54,80 @@ body {
 }
 
 .nav-container {
-    max-width: 1200px;
-    margin: 0 auto;
+    max-width: none;
+    width: 100%;
+    margin: 0;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
+    flex-direction: column;
+    padding: 0;
+}
+
+.nav-top {
+    width: 100%;
+    padding: 0;
 }
 
 .nav-logo {
-    font-size: 1.5rem;
-    font-weight: 700;
     color: var(--primary);
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
 }
 
-.logo-icon {
-    font-size: 2rem;
+.nav-logo-image {
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+    flex-shrink: 0;
 }
 
-.nav-menu {
+.nav-logo-text {
     display: flex;
-    gap: 2rem;
+    flex-direction: column;
+    line-height: 1.18;
+    max-width: 760px;
+}
+
+.nav-logo-title {
+    font-size: 1.28rem;
+    font-weight: 700;
+    color: var(--dark);
+}
+
+.nav-logo-subtitle {
+    font-size: 0.88rem;
+    color: var(--gray);
+}
+
+.nav-bottom {
+    width: 100%;
+    margin-top: 0.7rem;
+    padding: 0.7rem 1.4rem;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    gap: 1rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.25rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.nav-user-area {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
 }
 
 .nav-link {
     text-decoration: none;
     color: var(--gray);
-    font-weight: 500;
+    font-weight: 600;
     transition: color 0.3s;
 }
 
@@ -238,11 +280,17 @@ body {
 .events-container,
 .registrations-container,
 .admin-container,
-.analytics-container {
+.analytics-container,
+.profile-container {
     background: var(--white);
     padding: 2rem;
     border-radius: 16px;
     box-shadow: var(--shadow-lg);
+}
+
+.profile-card {
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .page-header {
@@ -495,7 +543,39 @@ body {
 
 /* ========== Responsive ========== */
 @media (max-width: 768px) {
-    .nav-menu {
+    .main-content {
+        padding-top: 280px;
+    }
+
+    .nav-container {
+        padding: 0;
+    }
+
+    .nav-logo-text {
+        max-width: 100%;
+    }
+
+    .nav-logo-title {
+        font-size: 1rem;
+    }
+
+    .nav-logo-subtitle {
+        font-size: 0.78rem;
+    }
+
+    .nav-logo-image {
+        width: 110px;
+        height: 110px;
+    }
+
+    .nav-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.65rem;
+        padding: 0.7rem 1rem;
+    }
+
+    .nav-links {
         gap: 1rem;
     }
     
@@ -669,6 +749,31 @@ body {
     padding: 2rem;
     border-radius: 16px;
     box-shadow: var(--shadow-lg);
+}
+
+.policy-container {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+}
+
+.policy-card {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--light);
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.policy-card h2 {
+    margin-bottom: 0.75rem;
+}
+
+.policy-card p {
+    margin-bottom: 0.75rem;
+    color: var(--gray);
 }
 
 .events-management-grid {

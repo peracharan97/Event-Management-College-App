@@ -15,6 +15,8 @@ public class EventDTO {
     private LocalTime eventTime;
     private String venue;
     private Double price;
+    private Double pvpsitPrice;
+    private Double otherCollegePrice;
     private Integer maxSeats;
     private Integer availableSeats;
     private Long totalRegistrations;

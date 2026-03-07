@@ -26,5 +26,6 @@ public class RegisterRequest {
     private String department;
     private Integer semester;
     private String phoneNumber;
+    private String collegeType; // PVPSIT or OTHER
     private String role; // ADMIN or STUDENT
 }

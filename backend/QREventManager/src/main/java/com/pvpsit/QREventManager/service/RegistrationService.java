@@ -49,6 +49,7 @@ public class RegistrationService {
         registration.setSelectedSubEvents(normalizedSubEvents);
         registration.setPaymentStatus(Registration.PaymentStatus.PENDING);
         registration.setRegStatus(Registration.RegistrationStatus.CONFIRMED);
+        registration.setRegistrationFee(resolveRegistrationFee(event, user));
         registration.setCreatedAt(LocalDateTime.now());
 
         return registrationRepository.save(registration);
@@ -112,5 +113,25 @@ public class RegistrationService {
         }
 
         return cleanedSelections;
+    }
+
+    private Double resolveRegistrationFee(Event event, User user) {
+        Double pvpsitPrice = firstNonNull(event.getPvpsitPrice(), event.getPrice(), 0.0);
+        Double otherCollegePrice = firstNonNull(event.getOtherCollegePrice(), event.getPrice(), pvpsitPrice);
+
+        if (user != null && User.CollegeType.PVPSIT.equals(user.getCollegeType())) {
+            return pvpsitPrice;
+        }
+        return otherCollegePrice;
+    }
+
+    @SafeVarargs
+    private final <T> T firstNonNull(T... values) {
+        for (T value : values) {
+            if (value != null) {
+                return value;
+            }
+        }
+        return null;
     }
 }

@@ -40,6 +40,8 @@ public class Event {
     private LocalTime eventTime;
     private String venue;
     private Double price;
+    private Double pvpsitPrice;
+    private Double otherCollegePrice;
     private Integer maxSeats;
 
     @Enumerated(EnumType.STRING)
@@ -66,6 +68,15 @@ public class Event {
     public void ensureStatus() {
         if (status == null) {
             status = EventStatus.ACTIVE;
+        }
+        if (pvpsitPrice == null) {
+            pvpsitPrice = price == null ? 0.0 : price;
+        }
+        if (otherCollegePrice == null) {
+            otherCollegePrice = price == null ? pvpsitPrice : price;
+        }
+        if (price == null) {
+            price = pvpsitPrice;
         }
     }
 }

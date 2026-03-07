@@ -25,7 +25,10 @@ const AdminDashboard = () => {
 
             // Calculate stats
             const totalRegs = eventsData.reduce((sum, e) => sum + e.totalRegistrations, 0);
-            const totalRev = eventsData.reduce((sum, e) => sum + (e.price * e.totalRegistrations), 0);
+            const totalRev = eventsData.reduce((sum, e) => {
+                const basePrice = e.pvpsitPrice ?? e.price ?? 0;
+                return sum + (basePrice * e.totalRegistrations);
+            }, 0);
             const upcoming = eventsData.filter(e => new Date(e.eventDate) >= new Date()).length;
 
             setStats({
@@ -113,7 +116,7 @@ const AdminDashboard = () => {
                                 <th>Event Name</th>
                                 <th>Date</th>
                                 <th>Venue</th>
-                                <th>Price</th>
+                                <th>Price (PVPSIT / Other)</th>
                                 <th>Registrations</th>
                                 <th>Actions</th>
                             </tr>
@@ -124,7 +127,7 @@ const AdminDashboard = () => {
                                     <td>{event.title}</td>
                                     <td>{format(new Date(event.eventDate), 'dd MMM yyyy')}</td>
                                     <td>{event.venue}</td>
-                                    <td>₹{event.price}</td>
+                                    <td>₹{event.pvpsitPrice ?? event.price ?? 0} / ₹{event.otherCollegePrice ?? event.price ?? 0}</td>
                                     <td>{event.totalRegistrations}/{event.maxSeats}</td>
                                     <td>
                                         <Link 

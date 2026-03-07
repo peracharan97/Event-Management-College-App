@@ -10,7 +10,8 @@ const CreateEvent = () => {
         eventDate: '',
         eventTime: '',
         venue: '',
-        price: 0,
+        pvpsitPrice: 0,
+        otherCollegePrice: 0,
         maxSeats: 100,
         subEvents: ['']
     });
@@ -41,6 +42,7 @@ const CreateEvent = () => {
 
         const payload = {
             ...formData,
+            price: formData.pvpsitPrice,
             subEvents: formData.subEvents
                 .map((item) => item.trim())
                 .filter((item) => item.length > 0)
@@ -123,17 +125,31 @@ const CreateEvent = () => {
 
                     <div className="form-row">
                         <div className="form-group">
-                            <label>Price (Rs) *</label>
+                            <label>PVPSIT Price (Rs) *</label>
                             <input
                                 type="number"
-                                value={formData.price}
-                                onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value || '0') })}
+                                value={formData.pvpsitPrice}
+                                onChange={(e) => setFormData({ ...formData, pvpsitPrice: parseFloat(e.target.value || '0') })}
                                 min="0"
                                 step="0.01"
                                 required
                             />
                         </div>
 
+                        <div className="form-group">
+                            <label>Other College Price (Rs) *</label>
+                            <input
+                                type="number"
+                                value={formData.otherCollegePrice}
+                                onChange={(e) => setFormData({ ...formData, otherCollegePrice: parseFloat(e.target.value || '0') })}
+                                min="0"
+                                step="0.01"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="form-row">
                         <div className="form-group">
                             <label>Max Seats *</label>
                             <input

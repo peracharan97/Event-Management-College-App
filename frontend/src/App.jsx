@@ -19,6 +19,8 @@ import Analytics from './components/Admin/Analytics';
 import PaymentGateway from './components/Payment/PaymentGateway';
 import Navbar from './components/Common/Navbar';
 import Footer from './components/Common/Footer';
+import Profile from './components/Profile/Profile';
+import RefundPolicy from './components/Common/RefundPolicy';
 
 const PrivateRoute = ({ children, adminOnly = false }) => {
     const { user } = useAuth();
@@ -53,8 +55,12 @@ function AppRoutes() {
                         </PrivateRoute>
                     } />
                     <Route path="/events" element={<EventsList />} />
+                    <Route path="/refund-policy" element={<RefundPolicy />} />
                     <Route path="/my-registrations" element={
                         <PrivateRoute><MyRegistrations /></PrivateRoute>
+                    } />
+                    <Route path="/profile" element={
+                        <PrivateRoute><Profile /></PrivateRoute>
                     } />
                     <Route path="/payment/:regId" element={
                         <PrivateRoute><PaymentGateway /></PrivateRoute>

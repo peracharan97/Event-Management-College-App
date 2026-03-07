@@ -27,13 +27,19 @@ export const AuthProvider = ({ children }) => {
         return newUser;
     };
 
+    const updateProfile = async (profileData) => {
+        const updatedUser = await authService.updateProfile(profileData);
+        setUser(updatedUser);
+        return updatedUser;
+    };
+
     const logout = () => {
         authService.logout();
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, register, updateProfile, logout, loading }}>
             {!loading && children}
         </AuthContext.Provider>
     );

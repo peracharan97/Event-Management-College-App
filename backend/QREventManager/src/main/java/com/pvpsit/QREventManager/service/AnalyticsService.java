@@ -48,7 +48,10 @@ public class AnalyticsService {
                 ? (totalAttendance * 100.0) / totalRegistrations
                 : 0.0;
 
-        double totalRevenue = paidRegistrations * safeAmount(event.getPrice());
+        double totalRevenue = registrations.stream()
+                .filter(registration -> Registration.PaymentStatus.PAID.equals(registration.getPaymentStatus()))
+                .mapToDouble(this::resolveRegistrationAmount)
+                .sum();
 
         double paymentSuccessRate = totalRegistrations > 0
                 ? (paidRegistrations * 100.0) / totalRegistrations
@@ -63,7 +66,7 @@ public class AnalyticsService {
             String semester = normalizeSemester(registration);
             boolean paid = Registration.PaymentStatus.PAID.equals(registration.getPaymentStatus());
             boolean present = attendedRegistrationIds.contains(registration.getRegId());
-            double amount = paid ? safeAmount(event.getPrice()) : 0.0;
+            double amount = paid ? resolveRegistrationAmount(registration) : 0.0;
 
             byBranch.computeIfAbsent(branch, key -> new GroupAccumulator())
                     .accumulate(paid, present, amount);
@@ -303,6 +306,25 @@ public class AnalyticsService {
 
     private double safeAmount(Double amount) {
         return amount == null ? 0.0 : amount;
+    }
+
+    private double resolveRegistrationAmount(Registration registration) {
+        if (registration == null) {
+            return 0.0;
+        }
+        if (registration.getRegistrationFee() != null) {
+            return registration.getRegistrationFee();
+        }
+
+        if (registration.getEvent() == null) {
+            return 0.0;
+        }
+
+        Event event = registration.getEvent();
+        if (registration.getUser() != null && registration.getUser().getCollegeType() == com.pvpsit.QREventManager.entity.User.CollegeType.PVPSIT) {
+            return safeAmount(event.getPvpsitPrice() != null ? event.getPvpsitPrice() : event.getPrice());
+        }
+        return safeAmount(event.getOtherCollegePrice() != null ? event.getOtherCollegePrice() : event.getPrice());
     }
 
     private double percent(long numerator, long denominator) {

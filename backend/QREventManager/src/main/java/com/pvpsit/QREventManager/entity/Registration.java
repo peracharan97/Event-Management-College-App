@@ -38,6 +38,8 @@ public class Registration {
     @Enumerated(EnumType.STRING)
     private RegistrationStatus regStatus;
 
+    private Double registrationFee;
+
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @OneToOne(mappedBy = "registration", cascade = CascadeType.ALL)
