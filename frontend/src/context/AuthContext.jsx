@@ -33,13 +33,17 @@ export const AuthProvider = ({ children }) => {
         return updatedUser;
     };
 
+    const changePassword = async (passwordData) => {
+        return authService.changePassword(passwordData);
+    };
+
     const logout = () => {
         authService.logout();
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, updateProfile, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, register, updateProfile, changePassword, logout, loading }}>
             {!loading && children}
         </AuthContext.Provider>
     );

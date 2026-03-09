@@ -41,7 +41,6 @@ const EventManagement = () => {
     const handleViewRegistrations = async (eventId) => {
         try {
             const response = await eventService.getEventRegistrations(eventId);
-            console.log('Registrations:', response.data);
             toast.info(`${response.data.length} registrations found`);
         } catch (error) {
             toast.error('Failed to load registrations');

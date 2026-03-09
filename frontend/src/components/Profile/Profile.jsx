@@ -3,8 +3,9 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 
 const Profile = () => {
-    const { user, updateProfile } = useAuth();
-    const [loading, setLoading] = useState(false);
+    const { user, updateProfile, changePassword } = useAuth();
+    const [profileLoading, setProfileLoading] = useState(false);
+    const [passwordLoading, setPasswordLoading] = useState(false);
     const [formData, setFormData] = useState({
         fullName: user?.fullName || '',
         email: user?.email || '',
@@ -13,10 +14,15 @@ const Profile = () => {
         semester: user?.semester ?? '',
         phoneNumber: user?.phoneNumber || ''
     });
+    const [passwordData, setPasswordData] = useState({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
 
-    const handleSubmit = async (e) => {
+    const handleProfileSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        setProfileLoading(true);
         try {
             await updateProfile({
                 ...formData,
@@ -26,7 +32,39 @@ const Profile = () => {
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to update profile');
         } finally {
-            setLoading(false);
+            setProfileLoading(false);
+        }
+    };
+
+    const handlePasswordSubmit = async (e) => {
+        e.preventDefault();
+
+        if (passwordData.newPassword.length < 6) {
+            toast.error('New password must be at least 6 characters');
+            return;
+        }
+
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            toast.error('New password and confirm password do not match');
+            return;
+        }
+
+        setPasswordLoading(true);
+        try {
+            await changePassword({
+                currentPassword: passwordData.currentPassword,
+                newPassword: passwordData.newPassword
+            });
+            toast.success('Password changed successfully');
+            setPasswordData({
+                currentPassword: '',
+                newPassword: '',
+                confirmPassword: ''
+            });
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to change password');
+        } finally {
+            setPasswordLoading(false);
         }
     };
 
@@ -38,7 +76,7 @@ const Profile = () => {
                     <p>Update your account details</p>
                 </div>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleProfileSubmit}>
                     <div className="form-row">
                         <div className="form-group">
                             <label>Username</label>
@@ -122,10 +160,54 @@ const Profile = () => {
                         </div>
                     </div>
 
-                    <button type="submit" className="btn btn-primary" disabled={loading}>
-                        {loading ? 'Saving...' : 'Save Changes'}
+                    <button type="submit" className="btn btn-primary" disabled={profileLoading}>
+                        {profileLoading ? 'Saving...' : 'Save Changes'}
                     </button>
                 </form>
+
+                <div className="password-section">
+                    <h2>Change Password</h2>
+                    <form onSubmit={handlePasswordSubmit}>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>Current Password</label>
+                                <input
+                                    type="password"
+                                    required
+                                    value={passwordData.currentPassword}
+                                    onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>New Password</label>
+                                <input
+                                    type="password"
+                                    required
+                                    minLength="6"
+                                    value={passwordData.newPassword}
+                                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>Confirm New Password</label>
+                                <input
+                                    type="password"
+                                    required
+                                    minLength="6"
+                                    value={passwordData.confirmPassword}
+                                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        <button type="submit" className="btn btn-secondary" disabled={passwordLoading}>
+                            {passwordLoading ? 'Updating Password...' : 'Change Password'}
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     );

@@ -40,8 +40,7 @@ const StudentDashboard = () => {
                 upcomingEvents: eventsRes.data.length,
                 paidEvents: regsRes.data.filter(r => r.paymentStatus === 'PAID').length
             });
-        } catch (error) {
-            console.error('Failed to load dashboard data');
+        } catch {
         } finally {
             setLoading(false);
         }

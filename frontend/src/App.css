@@ -293,6 +293,17 @@ body {
     margin: 0 auto;
 }
 
+.password-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.password-section h2 {
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
 .page-header {
     text-align: center;
     margin-bottom: 3rem;

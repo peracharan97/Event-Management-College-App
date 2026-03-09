@@ -28,6 +28,11 @@ export const authService = {
         return response.data;
     },
 
+    async changePassword(passwordData) {
+        const response = await api.put('/auth/change-password', passwordData);
+        return response.data;
+    },
+
     logout() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
