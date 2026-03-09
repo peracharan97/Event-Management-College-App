@@ -114,6 +114,22 @@ public class AuthService {
         return buildResponse(user, token);
     }
 
+    public void changePassword(String username, ChangePasswordRequest request) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid current password");
+        }
+
+        if (request.getCurrentPassword().equals(request.getNewPassword())) {
+            throw new RuntimeException("New password must be different from current password");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+
     // ================= HELPER =================
     private AuthResponse buildResponse(User user, String token) {
         return new AuthResponse(

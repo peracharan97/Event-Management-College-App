@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 
+const BRANCH_OPTIONS = ['IT', 'CSE', 'EEE', 'ECE', 'MECH', 'AIML', 'AIDS', 'CIVIL', 'MBA', 'OTHERS'];
+
 const Register = () => {
     const [formData, setFormData] = useState({
         username: '',
@@ -105,13 +107,18 @@ const Register = () => {
                         </div>
                         
                         <div className="form-group">
-                            <label>Department</label>
-                            <input
-                                type="text"
+                            <label>Branch</label>
+                            <select
                                 value={formData.department}
-                                onChange={(e) => setFormData({...formData, department: e.target.value})}
-                                placeholder="Enter department"
-                            />
+                                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                            >
+                                <option value="">Select branch</option>
+                                {BRANCH_OPTIONS.map((branch) => (
+                                    <option key={branch} value={branch}>
+                                        {branch}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
 

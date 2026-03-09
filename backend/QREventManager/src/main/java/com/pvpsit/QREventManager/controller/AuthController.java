@@ -2,6 +2,7 @@ package com.pvpsit.QREventManager.controller;
 
 import com.pvpsit.QREventManager.dto.AuthRequest;
 import com.pvpsit.QREventManager.dto.AuthResponse;
+import com.pvpsit.QREventManager.dto.ChangePasswordRequest;
 import com.pvpsit.QREventManager.dto.RegisterRequest;
 import com.pvpsit.QREventManager.dto.UpdateProfileRequest;
 import com.pvpsit.QREventManager.service.AuthService;
@@ -32,5 +33,12 @@ public class AuthController {
     public ResponseEntity<AuthResponse> updateProfile(@Valid @RequestBody UpdateProfileRequest request,
                                                       Authentication authentication) {
         return ResponseEntity.ok(authService.updateProfile(authentication.getName(), request));
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequest request,
+                                                 Authentication authentication) {
+        authService.changePassword(authentication.getName(), request);
+        return ResponseEntity.ok("Password changed successfully");
     }
 }

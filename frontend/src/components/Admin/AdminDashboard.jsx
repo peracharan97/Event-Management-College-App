@@ -37,8 +37,7 @@ const AdminDashboard = () => {
                 totalRevenue: totalRev,
                 upcomingEvents: upcoming
             });
-        } catch (error) {
-            console.error('Failed to load dashboard');
+        } catch {
         } finally {
             setLoading(false);
         }
