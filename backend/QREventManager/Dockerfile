@@ -1,17 +1,16 @@
-# Use Java 17
+# ---- Build Stage ----
 FROM eclipse-temurin:17-jdk
 
-# Set working directory
 WORKDIR /app
 
-# Copy project files
 COPY . .
 
-# Build the application
+# ✅ give permission to mvnw
+RUN chmod +x mvnw
+
+# build jar
 RUN ./mvnw clean package -DskipTests
 
-# Expose Render port charan
 EXPOSE 8080
 
-# Run Spring Boot
-CMD ["java", "-jar", "target/*.jar"]
+ENTRYPOINT ["java","-jar","target/QREventManager-0.0.1-SNAPSHOT.jar"]
