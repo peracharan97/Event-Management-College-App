@@ -10,7 +10,7 @@ COPY . .
 # Build the application
 RUN ./mvnw clean package -DskipTests
 
-# Expose Render port
+# Expose Render port charan
 EXPOSE 8080
 
 # Run Spring Boot
