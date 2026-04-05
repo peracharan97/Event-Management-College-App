@@ -10,8 +10,8 @@ const CreateEvent = () => {
         eventDate: '',
         eventTime: '',
         venue: '',
-        pvpsitPrice: 0,
-        otherCollegePrice: 0,
+        pvpsitPrice: null,
+        otherCollegePrice: null,
         maxSeats: 100,
         subEvents: ['']
     });
