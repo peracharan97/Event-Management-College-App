@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -38,11 +38,13 @@ const PrivateRoute = ({ children, adminOnly = false }) => {
 
 function AppRoutes() {
     const { user } = useAuth();
+    const location = useLocation();
+    const isAuthRoute = location.pathname === '/login' || location.pathname === '/register';
     
     return (
         <div className="app-container">
             <Navbar />
-            <main className="main-content">
+            <main className={`main-content${isAuthRoute ? ' main-content--auth' : ''}`}>
                 <Routes>
                     <Route path="/" element={<EventsList />} />
                     <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
@@ -81,7 +83,7 @@ function AppRoutes() {
                     } />
                 </Routes>
             </main>
-            <Footer />
+            {!isAuthRoute && <Footer />}
             <ToastContainer position="top-right" autoClose={3000} />
         </div>
     );

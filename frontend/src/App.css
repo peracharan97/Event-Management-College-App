@@ -36,17 +36,22 @@ body {
 
 .main-content {
     flex: 1;
-    padding: 210px 20px 40px;
+    padding: 32px 20px 40px;
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
+}
+
+.main-content--auth {
+    max-width: none;
+    padding: 24px 16px 32px;
 }
 
 /* ========== Navbar ========== */
 .navbar {
     background: var(--white);
     box-shadow: var(--shadow);
-    position: fixed;
+    position: sticky;
     top: 0;
     left: 0;
     right: 0;
@@ -76,8 +81,8 @@ body {
 }
 
 .nav-logo-image {
-    width: 140px;
-    height: 140px;
+    width: 72px;
+    height: 72px;
     object-fit: contain;
     flex-shrink: 0;
 }
@@ -90,20 +95,20 @@ body {
 }
 
 .nav-logo-title {
-    font-size: 1.28rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--dark);
 }
 
 .nav-logo-subtitle {
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     color: var(--gray);
 }
 
 .nav-bottom {
     width: 100%;
-    margin-top: 0.7rem;
-    padding: 0.7rem 1.4rem;
+    margin-top: 0.35rem;
+    padding: 0.5rem 1.1rem;
     border-top: 1px solid #e5e7eb;
     display: flex;
     justify-content: space-between;
@@ -235,20 +240,20 @@ body {
 
 /* ========== Auth Pages ========== */
 .auth-container {
-    min-height: calc(100vh - 80px);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: 2rem;
+    padding: 1.5rem 1rem;
 }
 
 .auth-card {
     background: var(--white);
-    padding: 3rem;
+    padding: 2.25rem;
     border-radius: 16px;
     box-shadow: var(--shadow-lg);
-    max-width: 500px;
+    max-width: 720px;
     width: 100%;
+    margin: 0 auto;
 }
 
 .auth-header {
@@ -987,6 +992,27 @@ body {
 
 /* ========== Responsive ========== */
 @media (max-width: 768px) {
+    .main-content {
+        padding: 20px 14px 32px;
+    }
+
+    .nav-logo-image {
+        width: 56px;
+        height: 56px;
+    }
+
+    .nav-logo-title {
+        font-size: 1rem;
+    }
+
+    .nav-logo-subtitle {
+        font-size: 0.8rem;
+    }
+
+    .nav-bottom {
+        padding: 0.5rem 0.9rem;
+    }
+
     .events-preview,
     .registrations-preview,
     .events-management-grid {
