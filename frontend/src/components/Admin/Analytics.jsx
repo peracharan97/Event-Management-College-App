@@ -69,7 +69,7 @@ const Analytics = () => {
     };
 
     const handleDownloadStudentCsv = () => {
-        const headers = ['Reg ID', 'Name', 'Email', 'Roll No', 'Department', 'Semester', 'Payment Status', 'Attendance Status', 'Sub Events'];
+        const headers = ['Reg ID', 'Name', 'Email', 'Roll No', 'Department', 'Semester', 'Payment Status', 'Attendance Status', 'Sub Events', 'Sub-Event Attendance'];
         const rows = students.map((s) => [
             s.regId,
             s.studentName,
@@ -79,7 +79,10 @@ const Analytics = () => {
             s.semester,
             s.paymentStatus,
             s.attendanceStatus,
-            (s.selectedSubEvents || []).join(', ')
+            (s.selectedSubEvents || []).join(', '),
+            Object.entries(s.subEventAttendance || {})
+                .map(([subEvent, status]) => `${subEvent}:${status}`)
+                .join(', ')
         ]);
         const csv = [headers, ...rows]
             .map((row) => row.map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(','))
@@ -211,6 +214,36 @@ const Analytics = () => {
                 </div>
             </div>
 
+            {(analytics.subEventAnalytics || []).length > 0 && (
+                <div className="analytics-table-section">
+                    <h3>Sub-Event Summary</h3>
+                    <div className="admin-events-table">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Sub-Event</th>
+                                <th>Registrations</th>
+                                <th>Paid</th>
+                                <th>Attendance</th>
+                                <th>Attendance %</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {(analytics.subEventAnalytics || []).map((row) => (
+                                <tr key={row.subEvent}>
+                                    <td>{row.subEvent}</td>
+                                    <td>{row.totalRegistrations}</td>
+                                    <td>{row.paidRegistrations}</td>
+                                    <td>{row.attendanceCount}</td>
+                                    <td>{(row.attendanceRate || 0).toFixed(1)}%</td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
             <div className="analytics-table-section">
                 <h3>Branch-wise Summary</h3>
                 <div className="admin-events-table">
@@ -340,17 +373,18 @@ const Analytics = () => {
                             <th>Payment</th>
                             <th>Attendance</th>
                             <th>Sub-Events</th>
+                            <th>Sub-Event Attendance</th>
                         </tr>
                         </thead>
                         <tbody>
                         {studentsLoading && (
                             <tr>
-                                <td colSpan="8">Loading filtered students...</td>
+                                <td colSpan="9">Loading filtered students...</td>
                             </tr>
                         )}
                         {!studentsLoading && students.length === 0 && (
                             <tr>
-                                <td colSpan="8">No students found for selected filters.</td>
+                                <td colSpan="9">No students found for selected filters.</td>
                             </tr>
                         )}
                         {!studentsLoading && students.map((student) => (
@@ -363,6 +397,11 @@ const Analytics = () => {
                                 <td>{student.paymentStatus}</td>
                                 <td>{student.attendanceStatus}</td>
                                 <td>{(student.selectedSubEvents || []).join(', ') || 'NA'}</td>
+                                <td>
+                                    {Object.entries(student.subEventAttendance || {})
+                                        .map(([subEvent, status]) => `${subEvent}:${status}`)
+                                        .join(', ') || '-'}
+                                </td>
                             </tr>
                         ))}
                         </tbody>

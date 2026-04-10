@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -17,4 +18,5 @@ public class StudentStatusDTO {
     private String paymentStatus;
     private String attendanceStatus;
     private List<String> selectedSubEvents;
+    private Map<String, String> subEventAttendance;
 }

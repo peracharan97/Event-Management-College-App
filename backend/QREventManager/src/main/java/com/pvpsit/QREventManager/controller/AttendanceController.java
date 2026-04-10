@@ -1,7 +1,7 @@
 package com.pvpsit.QREventManager.controller;
 
 import com.pvpsit.QREventManager.dto.AttendanceScanResponse;
-import com.pvpsit.QREventManager.entity.Attendance;
+import com.pvpsit.QREventManager.entity.SubEventAttendance;
 import com.pvpsit.QREventManager.service.AttendanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +21,13 @@ public class AttendanceController {
     @PostMapping("/scan")
     public ResponseEntity<AttendanceScanResponse> scanQRCode(@RequestBody Map<String, String> request) {
         String qrData = request.get("qrData");
-        Attendance attendance = attendanceService.scanQRCode(qrData);
+        SubEventAttendance attendance = attendanceService.scanQRCode(qrData);
 
         return ResponseEntity.ok(new AttendanceScanResponse(
                 attendance.getAttendanceId(),
                 attendance.getScannedAt(),
                 attendance.getStatus().name(),
+                attendance.getSubEvent(),
                 attendance.getRegistration().getRegId(),
                 attendance.getRegistration().getUser().getFullName(),
                 attendance.getRegistration().getUser().getEmail(),

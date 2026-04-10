@@ -15,9 +15,20 @@ public class AnalyticsDTO {
     private Double attendancePercentage;
     private Double totalRevenue;
     private Double paymentSuccessRate;
+    private List<SubEventAnalytics> subEventAnalytics;
     private List<BranchAnalytics> branchAnalytics;
     private List<SemesterAnalytics> semesterAnalytics;
     private List<BranchSemesterAnalytics> branchSemesterAnalytics;
+
+    @Data
+    @AllArgsConstructor
+    public static class SubEventAnalytics {
+        private String subEvent;
+        private Long totalRegistrations;
+        private Long paidRegistrations;
+        private Long attendanceCount;
+        private Double attendanceRate;
+    }
 
     @Data
     @AllArgsConstructor

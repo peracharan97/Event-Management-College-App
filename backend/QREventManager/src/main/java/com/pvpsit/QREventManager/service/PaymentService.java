@@ -170,7 +170,7 @@ public class PaymentService {
         paymentRepository.save(payment);
 
         registrationService.updatePaymentStatus(registration.getRegId(), Registration.PaymentStatus.PAID);
-        qrCodeService.generateQRCode(registration);
+        qrCodeService.generateSubEventQRCodes(registration);
     }
 
     private String hmacSha256(String data, String secret) {

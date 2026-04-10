@@ -72,6 +72,7 @@ const QRScanner = () => {
                         <h3>Attendance Marked</h3>
                         <p><strong>Student:</strong> {scannedData.studentName || 'N/A'}</p>
                         <p><strong>Event:</strong> {scannedData.eventTitle || 'N/A'}</p>
+                        <p><strong>Sub-Event:</strong> {scannedData.subEvent || 'NA'}</p>
                         <p><strong>Time:</strong> {new Date(scannedData.scannedAt).toLocaleString()}</p>
                     </div>
                 )}

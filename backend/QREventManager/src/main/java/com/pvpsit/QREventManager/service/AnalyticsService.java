@@ -5,9 +5,11 @@ import com.pvpsit.QREventManager.dto.StudentStatusDTO;
 import com.pvpsit.QREventManager.entity.Attendance;
 import com.pvpsit.QREventManager.entity.Event;
 import com.pvpsit.QREventManager.entity.Registration;
+import com.pvpsit.QREventManager.entity.SubEventAttendance;
 import com.pvpsit.QREventManager.repository.AttendanceRepository;
 import com.pvpsit.QREventManager.repository.EventRepository;
 import com.pvpsit.QREventManager.repository.RegistrationRepository;
+import com.pvpsit.QREventManager.repository.SubEventAttendanceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +30,7 @@ public class AnalyticsService {
 
     private final RegistrationRepository registrationRepository;
     private final AttendanceRepository attendanceRepository;
+    private final SubEventAttendanceRepository subEventAttendanceRepository;
     private final EventRepository eventRepository;
 
     public AnalyticsDTO getEventAnalytics(Long eventId) {
@@ -35,7 +38,8 @@ public class AnalyticsService {
                 .orElseThrow(() -> new RuntimeException("Event not found"));
 
         List<Registration> registrations = registrationRepository.findByEvent(event);
-        Set<Long> attendedRegistrationIds = extractAttendedRegistrationIds(event);
+        AttendanceSnapshot attendanceSnapshot = buildAttendanceSnapshot(event);
+        Set<Long> attendedRegistrationIds = attendanceSnapshot.attendedRegistrationIds;
 
         long totalRegistrations = registrations.size();
         long paidRegistrations = registrations.stream()
@@ -84,6 +88,7 @@ public class AnalyticsService {
                 attendancePercentage,
                 totalRevenue,
                 paymentSuccessRate,
+                buildSubEventAnalytics(registrations, attendanceSnapshot),
                 buildBranchAnalytics(byBranch),
                 buildSemesterAnalytics(bySemester),
                 buildBranchSemesterAnalytics(byBranchSemester)
@@ -133,32 +138,80 @@ public class AnalyticsService {
 
         String normalizedDepartment = department == null ? "ALL" : department.trim().toUpperCase(Locale.ROOT);
 
-        return registrationRepository.findByEvent(event).stream()
+        List<Registration> registrations = registrationRepository.findByEvent(event).stream()
                 .filter(registration -> matchesDepartment(registration, normalizedDepartment))
                 .filter(registration -> matchesSemester(registration, semester))
-                .map(registration -> new StudentStatusDTO(
-                        registration.getRegId(),
-                        registration.getUser() != null ? registration.getUser().getFullName() : null,
-                        registration.getUser() != null ? registration.getUser().getEmail() : null,
-                        registration.getUser() != null ? registration.getUser().getRollNo() : null,
-                        normalizeBranch(registration),
-                        normalizeSemester(registration),
-                        registration.getPaymentStatus() != null ? registration.getPaymentStatus().name() : "PENDING",
-                        getAttendanceStatus(registration),
-                        registration.getSelectedSubEvents() == null ? Collections.emptyList() : registration.getSelectedSubEvents()
-                ))
+                .toList();
+
+        AttendanceSnapshot attendanceSnapshot = buildAttendanceSnapshot(event);
+        return registrations.stream()
+                .map(registration -> {
+                    List<String> selectedSubEvents = registration.getSelectedSubEvents() == null
+                            ? Collections.emptyList()
+                            : registration.getSelectedSubEvents();
+
+                    Map<String, String> subEventAttendance = new HashMap<>();
+                    for (String subEvent : selectedSubEvents) {
+                        if (subEvent == null) {
+                            continue;
+                        }
+                        String normalizedSubEvent = subEvent.trim();
+                        if (normalizedSubEvent.isEmpty()) {
+                            continue;
+                        }
+                        boolean present = attendanceSnapshot.attendedRegSubPairs.contains(new RegSubKey(
+                                registration.getRegId(),
+                                normalizedSubEvent.toLowerCase(Locale.ROOT)
+                        ));
+                        subEventAttendance.put(normalizedSubEvent, present ? "PRESENT" : "ABSENT");
+                    }
+
+                    boolean presentAny = attendanceSnapshot.attendedRegistrationIds.contains(registration.getRegId());
+
+                    return new StudentStatusDTO(
+                            registration.getRegId(),
+                            registration.getUser() != null ? registration.getUser().getFullName() : null,
+                            registration.getUser() != null ? registration.getUser().getEmail() : null,
+                            registration.getUser() != null ? registration.getUser().getRollNo() : null,
+                            normalizeBranch(registration),
+                            normalizeSemester(registration),
+                            registration.getPaymentStatus() != null ? registration.getPaymentStatus().name() : "PENDING",
+                            presentAny ? "PRESENT" : "ABSENT",
+                            selectedSubEvents,
+                            subEventAttendance
+                    );
+                })
                 .sorted(Comparator.comparing(StudentStatusDTO::getStudentName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
                 .toList();
     }
 
-    private Set<Long> extractAttendedRegistrationIds(Event event) {
+    private AttendanceSnapshot buildAttendanceSnapshot(Event event) {
         Set<Long> attendedRegistrationIds = new HashSet<>();
+        Set<RegSubKey> attendedRegSubPairs = new HashSet<>();
+
+        List<SubEventAttendance> subEventAttendance = subEventAttendanceRepository.findByEvent(event);
+        for (SubEventAttendance attendance : subEventAttendance) {
+            if (attendance.getRegistration() == null || attendance.getRegistration().getRegId() == null) {
+                continue;
+            }
+            Long regId = attendance.getRegistration().getRegId();
+            attendedRegistrationIds.add(regId);
+            String subEvent = attendance.getSubEvent() == null ? "" : attendance.getSubEvent().trim();
+            if (!subEvent.isEmpty()) {
+                attendedRegSubPairs.add(new RegSubKey(regId, subEvent.toLowerCase(Locale.ROOT)));
+            }
+        }
+
+        // Backward compatibility with legacy attendance table (treated as NA).
         attendanceRepository.findByEvent(event).forEach(attendance -> {
             if (attendance.getRegistration() != null && attendance.getRegistration().getRegId() != null) {
-                attendedRegistrationIds.add(attendance.getRegistration().getRegId());
+                Long regId = attendance.getRegistration().getRegId();
+                attendedRegistrationIds.add(regId);
+                attendedRegSubPairs.add(new RegSubKey(regId, "na"));
             }
         });
-        return attendedRegistrationIds;
+
+        return new AttendanceSnapshot(attendedRegistrationIds, attendedRegSubPairs);
     }
 
     private boolean matchesDepartment(Registration registration, String department) {
@@ -178,11 +231,49 @@ public class AnalyticsService {
         return semester.equals(registration.getUser().getSemester());
     }
 
-    private String getAttendanceStatus(Registration registration) {
-        return attendanceRepository.findByRegistration(registration)
-                .map(Attendance::getStatus)
-                .map(Enum::name)
-                .orElse("ABSENT");
+    private List<AnalyticsDTO.SubEventAnalytics> buildSubEventAnalytics(
+            List<Registration> registrations,
+            AttendanceSnapshot attendanceSnapshot
+    ) {
+        Map<String, GroupAccumulator> bySubEvent = new HashMap<>();
+
+        for (Registration registration : registrations) {
+            List<String> selected = registration.getSelectedSubEvents() == null
+                    ? Collections.emptyList()
+                    : registration.getSelectedSubEvents();
+
+            boolean paid = Registration.PaymentStatus.PAID.equals(registration.getPaymentStatus());
+            Long regId = registration.getRegId();
+
+            for (String raw : selected) {
+                if (raw == null) {
+                    continue;
+                }
+                String subEvent = raw.trim();
+                if (subEvent.isEmpty()) {
+                    continue;
+                }
+
+                boolean present = regId != null && attendanceSnapshot.attendedRegSubPairs.contains(new RegSubKey(
+                        regId,
+                        subEvent.toLowerCase(Locale.ROOT)
+                ));
+                bySubEvent.computeIfAbsent(subEvent, key -> new GroupAccumulator())
+                        .accumulate(paid, present, 0.0);
+            }
+        }
+
+        List<AnalyticsDTO.SubEventAnalytics> data = new ArrayList<>();
+        bySubEvent.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER))
+                .forEach(entry -> data.add(new AnalyticsDTO.SubEventAnalytics(
+                        entry.getKey(),
+                        entry.getValue().totalRegistrations,
+                        entry.getValue().paidRegistrations,
+                        entry.getValue().attendanceCount,
+                        percent(entry.getValue().attendanceCount, entry.getValue().totalRegistrations)
+                )));
+        return data;
     }
 
     private List<AnalyticsDTO.BranchAnalytics> buildBranchAnalytics(Map<String, GroupAccumulator> byBranch) {
@@ -368,5 +459,11 @@ public class AnalyticsService {
     }
 
     private record BranchSemesterKey(String branch, String semester) {
+    }
+
+    private record RegSubKey(Long regId, String subEvent) {
+    }
+
+    private record AttendanceSnapshot(Set<Long> attendedRegistrationIds, Set<RegSubKey> attendedRegSubPairs) {
     }
 }

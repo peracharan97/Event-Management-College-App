@@ -11,6 +11,7 @@ public class AttendanceScanResponse {
     private Long attendanceId;
     private LocalDateTime scannedAt;
     private String status;
+    private String subEvent;
     private Long registrationId;
     private String studentName;
     private String studentEmail;
