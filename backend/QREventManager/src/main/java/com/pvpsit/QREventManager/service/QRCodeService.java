@@ -33,6 +33,7 @@ public class QRCodeService {
 
             // Generate QR code image
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
+
             BitMatrix bitMatrix = qrCodeWriter.encode(qrData, BarcodeFormat.QR_CODE, 300, 300);
 
             ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
